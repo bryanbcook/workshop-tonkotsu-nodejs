@@ -51,7 +51,7 @@ describe("Utils", function() {
 
   describe("fetchQuote", function() {
     it(
-      "returns a nice msg",
+      "returns a nice message",
       mochaAsync(async () => {
         const msg = await utils.fetchQuote();
         assert.equal(msg, "Hey there bud");
