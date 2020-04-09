@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 env:
-  AZURE_WEBAPP_NAME: tonkotsu         # set this to your application's name
+  AZURE_WEBAPP_NAME: 'tonkotsu'         # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '10.x'                # set this to the node version to use
 
@@ -33,25 +33,27 @@ jobs:
         
   deploy-to-stage:
     runs-on: ubuntu-latest
-    #if: github.event == 'pull_request'
+    needs: build
+    if: github.event_name == 'pull_request'
     steps:
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: tonkotsu-staging
+        slot-name: 'tonkotsu-staging'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     
   
   deploy-to-prod:
     runs-on: ubuntu-latest
-    #if: github.ref == 'master'
+    needs: build
+    if: github.ref == 'ref/heads/master'
     steps:
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: tonkotsu
+        slot-name: 'tonkotsu'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
