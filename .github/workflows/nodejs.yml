@@ -9,14 +9,15 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  AZURE_WEBAPP_NAME: 'tonkotsu'         # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '10.x'                # set this to the node version to use
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
-
-    #strategy:
-    #  matrix:
-    #    node-version: [10.x, 12.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -24,8 +25,35 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-        #node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run test
       env:
         CI: true
+        
+        
+  deploy-to-stage:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: 'Deploy to Azure WebApp'
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        slot-name: 'staging'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    
+  
+  deploy-to-prod:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'ref/heads/master'
+    steps:
+    - name: 'Deploy to Azure WebApp'
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
