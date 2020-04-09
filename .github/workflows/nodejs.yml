@@ -33,7 +33,7 @@ jobs:
         
   deploy-to-stage:
     runs-on: ubuntu-latest
-    if: github.event == 'pull_request'
+    #if: github.event == 'pull_request'
     steps:
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
@@ -46,7 +46,7 @@ jobs:
   
   deploy-to-prod:
     runs-on: ubuntu-latest
-    if: github.ref == 'master'
+    #if: github.ref == 'master'
     steps:
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
